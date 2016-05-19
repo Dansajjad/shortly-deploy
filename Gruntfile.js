@@ -7,21 +7,24 @@ module.exports = function(grunt) {
         separator: ';'
       }, 
       dist: {
-        src: [
-          'public/lib/jquery.js', 
-          'public/lib/underscore.js', 
-          'public/lib/backbone.js', 
-          'public/lib/handlebars.js', 
-          'public/client/app.js', 
-          'public/client/link.js', 
-          'public/client/links.js', 
-          'public/client/linkView.js', 
-          'public/client/linksView.js', 
-          'public/client/createLinkView.js', 
-          'public/client/router.js'
-        ],
-        dest: 'public/dist/app.js'
-      },
+        files: {
+          'public/dist/libs.js': [
+            'public/lib/jquery.js', 
+            'public/lib/underscore.js', 
+            'public/lib/backbone.js', 
+            'public/lib/handlebars.js'
+          ], 
+          'public/dist/app.js': [
+            'public/client/app.js', 
+            'public/client/link.js', 
+            'public/client/links.js', 
+            'public/client/linkView.js', 
+            'public/client/linksView.js', 
+            'public/client/createLinkView.js', 
+            'public/client/router.js'
+          ]
+        }
+      }
     },
 
     mochaTest: {
@@ -42,6 +45,7 @@ module.exports = function(grunt) {
     uglify: {
       dist: {
         files: {
+          'public/dist/libs.min.js': ['public/dist/libs.js'],
           'public/dist/app.min.js': ['public/dist/app.js']
         }
       }
@@ -60,6 +64,7 @@ module.exports = function(grunt) {
     },
 
     cssmin: {
+      'public/dist/style.min.css': 'public/style.css'
     },
 
     watch: {
@@ -81,6 +86,7 @@ module.exports = function(grunt) {
 
     shell: {
       prodServer: {
+        command: 'git push live master' 
       }
     },
   });
@@ -98,11 +104,6 @@ module.exports = function(grunt) {
     grunt.task.run([ 'nodemon', 'watch' ]);
   });
 
-  // grunt.registerTask('server-prod', function (target) {
-  //   grunt.task.run(['nodemon', 'watch']);
-  // });
-
-
   ////////////////////////////////////////////////////
   // Main grunt tasks
   ////////////////////////////////////////////////////
@@ -111,12 +112,12 @@ module.exports = function(grunt) {
     'mochaTest'
   ]);
 
-  grunt.registerTask('build', ['concat', 'uglify']);
+  grunt.registerTask('build', ['eslint', 'test', 'concat', 'uglify', 'cssmin']);
 
   grunt.registerTask('upload', function(n) {
     if (grunt.option('prod')) {
       // add your production server task here
-      grunt.task.run([ 'server-prod' ]);
+      grunt.task.run([ 'build', 'shell:prodServer' ]);
     } else {
       grunt.task.run([ 'nodemon' ]);
     }
@@ -124,6 +125,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('deploy', [
     // add your deploy tasks here
+    'build', 'upload'
   ]);
 
 
