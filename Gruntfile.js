@@ -87,6 +87,9 @@ module.exports = function(grunt) {
     shell: {
       prodServer: {
         command: 'git push live master' 
+      },
+      npm: {
+        command: 'npm install'
       }
     },
   });
@@ -112,12 +115,12 @@ module.exports = function(grunt) {
     'mochaTest'
   ]);
 
-  grunt.registerTask('build', ['eslint', 'test', 'concat', 'uglify', 'cssmin']);
+  grunt.registerTask('build', ['shell:npm', 'eslint', 'test', 'concat', 'uglify', 'cssmin']);
 
   grunt.registerTask('upload', function(n) {
     if (grunt.option('prod')) {
       // add your production server task here
-      grunt.task.run([ 'build', 'shell:prodServer' ]);
+      grunt.task.run([ 'shell:prodServer' ]);
     } else {
       grunt.task.run([ 'nodemon' ]);
     }
