@@ -14,12 +14,13 @@ schema.method('comparePassword', function(attemptedPassword, callback) {
   });
 });
 
-schema.method('hashPassword', function() {
+schema.pre('save', function(next) {
   var cipher = Promise.promisify(bcrypt.hash);
-  return cipher(this.password, null, null).bind(this)
-    .then(function(hash) {
-      this.password = hash;
-    });
+  cipher(this.password, null, null).bind(this)
+  .then(function(hash) {
+    this.password = hash;
+    next();
+  });
 });
 
 var User = mongoose.model('User', schema);
